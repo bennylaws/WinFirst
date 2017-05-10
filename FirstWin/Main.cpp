@@ -43,9 +43,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 
 										// run message loop
 	MSG msg = {};
+	// get message from queue and store it in &msg
 	while (GetMessage(&msg, NULL, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		TranslateMessage(&msg);			// call this BEFORE DispatchMessage
+		DispatchMessage(&msg);			// tell system to call target windows' windows-procedure
 	}
 
 	return 0;
@@ -55,6 +56,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 	switch (uMsg) {
+
+	case WM_CLOSE:						// OPTIONAL
+		if (MessageBox(hwnd, L"Echt jetzt?", L"My First Window Class", MB_OKCANCEL) == IDOK)
+			DestroyWindow(hwnd);
+
+		//else user canceled, do not close
+		return 0;						// important, to indicate we processed WM_CLOSE
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
